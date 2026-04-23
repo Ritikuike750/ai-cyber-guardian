@@ -1,16 +1,13 @@
 import streamlit as st
 import google.generativeai as genai
 from PIL import Image
-import requests
 
 # Page Layout
 st.set_page_config(page_title="AI Cyber-Guardian", page_icon="🛡️", layout="wide")
 
-# Sidebar: Yahan aap apni API keys dalenge (Point 6 - Free & Secure)
+# Sidebar: Setup Center
 st.sidebar.title("🔐 Setup Center")
-st.sidebar.markdown("Apni API keys yahan paste karein:")
 gemini_key = st.sidebar.text_input("Google Gemini API Key", type="password")
-hf_token = st.sidebar.text_input("Hugging Face Token (Optional)", type="password")
 
 st.title("🛡️ AI Cyber-Guardian v2.0")
 st.markdown("### Detect Text Scams & Deepfake Photos")
@@ -21,15 +18,16 @@ tab1, tab2 = st.tabs(["💬 Text Scam Scanner", "🖼️ Image/Deepfake Detector
 # --- TAB 1: TEXT SCAM DETECTION ---
 with tab1:
     st.subheader("Message ya Link Scan Karein")
-    user_text = st.text_area("Yahan message ya email paste karein:", placeholder="Example: You won $10,000! Click here...")
+    user_text = st.text_area("Yahan message paste karein:", placeholder="Example: You won a lottery!")
     if st.button("Scan Message"):
         if not gemini_key:
-            st.error("Pehle Sidebar mein apni Google API Key dalein!")
+            st.error("Pehle Sidebar mein apni API Key dalein!")
         else:
             try:
                 genai.configure(api_key=gemini_key)
-                model = genai.GenerativeModel('gemini-pro')
-                prompt = f"Analyze this text for scams, phishing, or fraud. Give a risk score (0-100%) and explain why: {user_text}"
+                # Updated Model Name here
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                prompt = f"Analyze this text for scams or phishing. Give a risk score (0-100%) and explain why: {user_text}"
                 response = model.generate_content(prompt)
                 st.warning(f"**AI Analysis Result:**\n\n{response.text}")
             except Exception as e:
@@ -45,15 +43,13 @@ with tab2:
         
         if st.button("Check for Deepfake"):
             if not gemini_key:
-                st.error("Pehle Sidebar mein apni Google API Key dalein!")
+                st.error("Pehle Sidebar mein apni API Key dalein!")
             else:
                 try:
                     genai.configure(api_key=gemini_key)
+                    # Updated Model Name here
                     model = genai.GenerativeModel('gemini-1.5-flash')
-                    response = model.generate_content(["Check if this image is AI generated or a deepfake. Look for lighting, skin, and edges. Explain details.", image])
+                    response = model.generate_content(["Check if this image is AI generated or a deepfake. Look for anomalies. Explain why.", image])
                     st.info(f"**AI Assessment:**\n\n{response.text}")
                 except Exception as e:
                     st.error(f"Error: {e}")
-
-st.sidebar.markdown("---")
-st.sidebar.info("Unique Point: Yeh tool Text aur Image dono ko ek saath scan karta hai.")
